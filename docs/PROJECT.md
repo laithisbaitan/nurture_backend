@@ -28,7 +28,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 | 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | **Done & verified** (10 tests pass) |
 | 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | **Done** (21 tests pass, awaiting user confirmation) |
 | 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | **Done** (27 tests pass, awaiting user confirmation) |
-| 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | Not started |
+| 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | **Done** (38 tests pass, awaiting user confirmation) |
 | 5 | `progress`: daily/weekly aggregation + weight-trend endpoints | Not started |
 
 **Rule: never build ahead of the current stage. Stop after each stage and wait for
@@ -41,8 +41,8 @@ VPS, merge `develop` into `main`; production only ever pulls `main`.
 
 ## Current focus
 
-Stage 3 built and tested. Awaiting user confirmation to start Stage 4
-(`logs`: FoodLog + WeightLog models, user-scoped endpoints).
+Stage 4 built and tested. Awaiting user confirmation to start Stage 5
+(`progress`: daily/weekly aggregation + weight-trend endpoints).
 
 ## Environments
 
@@ -76,3 +76,8 @@ Stage 3 built and tested. Awaiting user confirmation to start Stage 4
   step 1 creates a placeholder row (empty names, zero macros,
   source=photo_pending_ai); step 2 PATCHes real values and sets source=manual.
   `source` is writable on PATCH only; regular POST forces manual in the view.
+- 2026-08-17: FoodLog.food_item uses on_delete=PROTECT so deleting a food can't
+  silently wipe users' diary history. Log lists are unpaginated (per-day, small).
+  Date filtering uses logged_at__date in UTC (no per-user timezones in v1).
+  FoodLog responses include flat read-only food_* fields (names, calories,
+  serving) so the app needs no second request to render a day's log.
