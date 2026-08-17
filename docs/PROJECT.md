@@ -24,7 +24,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 
 | Stage | Scope | Status |
 |---|---|---|
-| 0 | Repo, venv, project + 4 apps, .env settings, Postgres, DRF/JWT/CORS/media config | **Done** (pending local Postgres verification) |
+| 0 | Repo, venv, project + 4 apps, .env settings, Postgres, DRF/JWT/CORS/media config | **Done & verified** |
 | 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | Not started |
 | 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | Not started |
 | 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | Not started |
@@ -36,14 +36,14 @@ user confirmation before starting the next.**
 
 ## Current focus
 
-Stage 0 wrap-up: verify `runserver`/`migrate` against a local Postgres, then get
-user confirmation to start Stage 1 (`accounts`).
+Awaiting user confirmation to start Stage 1 (`accounts`: Profile model,
+register/login/refresh/me endpoints, admin registration, tests).
 
 ## Environments
 
-- **Local dev**: this machine. `.env` points at `localhost` Postgres
-  (db/user `nurture`). Local Postgres 16 installed but service was not yet
-  started/provisioned as of Stage 0.
+- **Local dev**: this machine. `.env` points at `localhost` Postgres 16
+  (db/user `nurture`). Note: local `pg_hba.conf` needed a `local all postgres peer`
+  rule prepended for admin access via `sudo -u postgres psql`.
 - **Production VPS**: 72.61.91.102, Ubuntu, Postgres 17 (`postgresql@17-main`),
   nginx. DB + user already created by the user. Deployment guide: `docs/DEPLOYMENT.md`.
 
