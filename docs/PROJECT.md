@@ -25,7 +25,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 | Stage | Scope | Status |
 |---|---|---|
 | 0 | Repo, venv, project + 4 apps, .env settings, Postgres, DRF/JWT/CORS/media config | **Done & verified** |
-| 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | **Done** (awaiting user confirmation) |
+| 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | **Done & verified** (10 tests pass) |
 | 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | Not started |
 | 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | Not started |
 | 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | Not started |
@@ -41,10 +41,8 @@ VPS, merge `develop` into `main`; production only ever pulls `main`.
 
 ## Current focus
 
-Stage 1 built and smoke-tested live (register/login/me verified via curl).
-Pending: `nurture` DB role needs CREATEDB so `manage.py test` can run
-(`sudo -u postgres psql -c "ALTER USER nurture CREATEDB;"`), then user
-confirmation to start Stage 2 (`foods`).
+Awaiting user confirmation to start Stage 2 (`foods`: FoodItem model,
+CRUD + search endpoints, manual entry only — no photo handling yet).
 
 ## Environments
 
