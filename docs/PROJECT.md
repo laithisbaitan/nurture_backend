@@ -34,6 +34,11 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 **Rule: never build ahead of the current stage. Stop after each stage and wait for
 user confirmation before starting the next.**
 
+## Git workflow
+
+Commit day-to-day work on the `develop` branch. When a release is ready for the
+VPS, merge `develop` into `main`; production only ever pulls `main`.
+
 ## Current focus
 
 Awaiting user confirmation to start Stage 1 (`accounts`: Profile model,
