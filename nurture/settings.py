@@ -5,6 +5,7 @@ Reads secrets and environment-specific values from a .env file (see .env.example
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -92,6 +93,13 @@ REST_FRAMEWORK = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+
+# Longer lifetimes than SimpleJWT defaults (5 min / 1 day) to keep the mobile
+# app friction-free; refresh rotation stays off for simplicity in v1.
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
 }
 
 
