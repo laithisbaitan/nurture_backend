@@ -27,7 +27,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 | 0 | Repo, venv, project + 4 apps, .env settings, Postgres, DRF/JWT/CORS/media config | **Done & verified** |
 | 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | **Done & verified** (10 tests pass) |
 | 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | **Done** (21 tests pass, awaiting user confirmation) |
-| 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | Not started |
+| 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | **Done** (27 tests pass, awaiting user confirmation) |
 | 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | Not started |
 | 5 | `progress`: daily/weekly aggregation + weight-trend endpoints | Not started |
 
@@ -41,9 +41,8 @@ VPS, merge `develop` into `main`; production only ever pulls `main`.
 
 ## Current focus
 
-Stage 2 built and tested. Awaiting user confirmation to start Stage 3
-(two-step photo flow: upload photo with source=photo_pending_ai, then
-PATCH nutrition fields and flip source to manual).
+Stage 3 built and tested. Awaiting user confirmation to start Stage 4
+(`logs`: FoodLog + WeightLog models, user-scoped endpoints).
 
 ## Environments
 
@@ -70,5 +69,10 @@ PATCH nutrition fields and flip source to manual).
 - 2026-08-17: `name` maps to `User.first_name`; returned/editable via `/api/auth/me/`.
 - 2026-08-17: Foods list paginated (20/page, viewset-level so other endpoints stay
   unpaginated). Search capped at 25 lightweight results, empty query returns [].
-- 2026-08-17: `photo` and `source` are read-only in Stage 2's serializer; both open
-  up in Stage 3. `created_by` always comes from `request.user`. No DELETE on foods.
+- 2026-08-17: `photo` is read-only in the main serializer; it only enters via
+  `POST /api/foods/photo/`. `created_by` always comes from `request.user`.
+  No DELETE on foods.
+- 2026-08-17: Photo flow keeps nutrition columns NOT NULL (per Stage 2 spec):
+  step 1 creates a placeholder row (empty names, zero macros,
+  source=photo_pending_ai); step 2 PATCHes real values and sets source=manual.
+  `source` is writable on PATCH only; regular POST forces manual in the view.

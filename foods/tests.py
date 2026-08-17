@@ -1,10 +1,23 @@
+import tempfile
+from io import BytesIO
+
 from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import override_settings
+from PIL import Image
 from rest_framework.test import APITestCase
 
 from .models import FoodItem
 
 FOODS_URL = "/api/foods/"
 SEARCH_URL = "/api/foods/search/"
+PHOTO_URL = "/api/foods/photo/"
+
+
+def make_test_image(name="meal.jpg"):
+    buffer = BytesIO()
+    Image.new("RGB", (10, 10), "red").save(buffer, format="JPEG")
+    return SimpleUploadedFile(name, buffer.getvalue(), content_type="image/jpeg")
 
 CHICKEN = {
     "name_en": "Chicken Breast",
@@ -120,3 +133,59 @@ class FoodSearchTests(FoodItemTestCase):
     def test_search_no_match_and_empty_query(self):
         self.assertEqual(self.client.get(SEARCH_URL, {"q": "pizza"}).data, [])
         self.assertEqual(self.client.get(SEARCH_URL).data, [])
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class PhotoFlowTests(FoodItemTestCase):
+    def test_photo_upload_requires_auth(self):
+        self.client.credentials()
+        response = self.client.post(PHOTO_URL, {"photo": make_test_image()})
+        self.assertEqual(response.status_code, 401)
+
+    def test_photo_upload_without_file_fails(self):
+        self.assertEqual(self.client.post(PHOTO_URL, {}).status_code, 400)
+
+    def test_step1_upload_creates_pending_item_with_absolute_url(self):
+        response = self.client.post(PHOTO_URL, {"photo": make_test_image()})
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["source"], "photo_pending_ai")
+        self.assertEqual(response.data["created_by"], self.user.id)
+        self.assertTrue(response.data["photo"].startswith("http"))
+        self.assertIn("/media/food_photos/", response.data["photo"])
+
+    def test_step2_patch_fills_nutrition_and_flips_source(self):
+        item_id = self.client.post(PHOTO_URL, {"photo": make_test_image()}).data["id"]
+        response = self.client.patch(
+            f"{FOODS_URL}{item_id}/",
+            {
+                "name_en": "Grilled Kofta",
+                "name_ar": "كفتة مشوية",
+                "serving_size": 150,
+                "serving_unit": "g",
+                "calories": 350,
+                "protein_g": 25,
+                "carbs_g": 5,
+                "fat_g": 26,
+                "source": "manual",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["source"], "manual")
+        self.assertEqual(response.data["name_ar"], "كفتة مشوية")
+        self.assertEqual(response.data["calories"], 350)
+        # Photo from step 1 survives step 2.
+        self.assertIn("/media/food_photos/", response.data["photo"])
+
+    def test_patch_rejects_invalid_source(self):
+        item_id = self.client.post(PHOTO_URL, {"photo": make_test_image()}).data["id"]
+        response = self.client.patch(
+            f"{FOODS_URL}{item_id}/", {"source": "banana"}, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+
+    def test_manual_create_still_forces_manual_source(self):
+        payload = {**CHICKEN, "source": "photo_pending_ai"}
+        response = self.client.post(FOODS_URL, payload, format="json")
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["source"], "manual")

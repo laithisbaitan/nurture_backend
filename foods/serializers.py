@@ -26,9 +26,17 @@ class FoodItemSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-        # photo becomes writable in Stage 3 (two-step photo flow);
+        # photo only enters through POST /api/foods/photo/ (step 1 of the photo
+        # flow); source is writable so step 2 can flip photo_pending_ai -> manual,
+        # but regular creates force source=manual in the view.
         # created_by is always taken from the requesting user, never the payload.
-        read_only_fields = ["id", "photo", "source", "created_by", "created_at", "updated_at"]
+        read_only_fields = ["id", "photo", "created_by", "created_at", "updated_at"]
+
+
+class FoodPhotoUploadSerializer(serializers.Serializer):
+    """Step 1 of the two-step photo flow: just the image, nothing else."""
+
+    photo = serializers.ImageField()
 
 
 class FoodItemSearchSerializer(serializers.ModelSerializer):
