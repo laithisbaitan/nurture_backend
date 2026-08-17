@@ -6,7 +6,6 @@ class Profile(models.Model):
     class Sex(models.TextChoices):
         MALE = "male"
         FEMALE = "female"
-        OTHER = "other"
 
     class ActivityLevel(models.TextChoices):
         SEDENTARY = "sedentary"

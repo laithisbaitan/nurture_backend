@@ -26,7 +26,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 |---|---|---|
 | 0 | Repo, venv, project + 4 apps, .env settings, Postgres, DRF/JWT/CORS/media config | **Done & verified** |
 | 1 | `accounts`: Profile model, register/login/refresh/me endpoints, admin | **Done & verified** (10 tests pass) |
-| 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | Not started |
+| 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | **Done** (21 tests pass, awaiting user confirmation) |
 | 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | Not started |
 | 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | Not started |
 | 5 | `progress`: daily/weekly aggregation + weight-trend endpoints | Not started |
@@ -41,8 +41,9 @@ VPS, merge `develop` into `main`; production only ever pulls `main`.
 
 ## Current focus
 
-Awaiting user confirmation to start Stage 2 (`foods`: FoodItem model,
-CRUD + search endpoints, manual entry only — no photo handling yet).
+Stage 2 built and tested. Awaiting user confirmation to start Stage 3
+(two-step photo flow: upload photo with source=photo_pending_ai, then
+PATCH nutrition fields and flip source to manual).
 
 ## Environments
 
@@ -67,3 +68,7 @@ CRUD + search endpoints, manual entry only — no photo handling yet).
 - 2026-08-17: JWT lifetimes: access 1h, refresh 30d (mobile-friendly; SimpleJWT
   defaults of 5min/1d would force constant refreshes).
 - 2026-08-17: `name` maps to `User.first_name`; returned/editable via `/api/auth/me/`.
+- 2026-08-17: Foods list paginated (20/page, viewset-level so other endpoints stay
+  unpaginated). Search capped at 25 lightweight results, empty query returns [].
+- 2026-08-17: `photo` and `source` are read-only in Stage 2's serializer; both open
+  up in Stage 3. `created_by` always comes from `request.user`. No DELETE on foods.
