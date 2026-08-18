@@ -29,7 +29,7 @@ Pillow. Media stored on filesystem (`media/`), served by nginx in production.
 | 2 | `foods`: FoodItem model, CRUD + search endpoints (manual entry only) | **Done** (21 tests pass, awaiting user confirmation) |
 | 3 | `foods`: two-step photo flow (upload photo → PATCH nutrition later) | **Done** (27 tests pass, awaiting user confirmation) |
 | 4 | `logs`: FoodLog + WeightLog models and user-scoped endpoints | **Done** (38 tests pass, awaiting user confirmation) |
-| 5 | `progress`: daily/weekly aggregation + weight-trend endpoints | Not started |
+| 5 | `progress`: daily/weekly aggregation + weight-trend endpoints | **Done** (44 tests pass, awaiting user confirmation) |
 
 **Rule: never build ahead of the current stage. Stop after each stage and wait for
 user confirmation before starting the next.**
@@ -41,8 +41,8 @@ VPS, merge `develop` into `main`; production only ever pulls `main`.
 
 ## Current focus
 
-Stage 4 built and tested. Awaiting user confirmation to start Stage 5
-(`progress`: daily/weekly aggregation + weight-trend endpoints).
+All planned stages (0-5) are implemented and tested. Awaiting user review
+and deployment steps (push `develop`, then merge to `main` when ready).
 
 ## Environments
 
@@ -81,3 +81,7 @@ Stage 4 built and tested. Awaiting user confirmation to start Stage 5
   Date filtering uses logged_at__date in UTC (no per-user timezones in v1).
   FoodLog responses include flat read-only food_* fields (names, calories,
   serving) so the app needs no second request to render a day's log.
+- 2026-08-18: Progress endpoints are read-only and user-scoped:
+  `/api/progress/daily/`, `/api/progress/weekly/`, `/api/progress/weight-trend/`.
+  Daily/weekly totals multiply food nutrients by log quantity and merge
+  numeric `micros_json` keys across foods; weekly returns a fixed 7-day array.
