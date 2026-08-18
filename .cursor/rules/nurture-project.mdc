@@ -1,0 +1,39 @@
+---
+description: Nurture backend project context, philosophy, and workflow rules
+alwaysApply: true
+---
+
+# Nurture Backend
+
+Django + DRF + PostgreSQL backend for **Nurture**, a personal-first health/food-tracking
+app (Flutter frontend lives elsewhere). Auth via SimpleJWT. Hosted on the user's VPS.
+
+**Always read `docs/PROJECT.md` first** — it holds the stage roadmap, current status,
+and decision log. Update it at the end of every stage.
+
+## Philosophy
+
+- Minimal, friction-free, no bloat. No packages, abstractions, or features beyond spec.
+- Never add: ads, analytics SDKs, paywalls, gamification, notifications/streaks,
+  moderation tooling, third-party UI kits.
+- If an instruction conflicts with "keep it simple", stop and ask the user.
+
+## Workflow (stage-gated)
+
+- Build in the exact stage order in `docs/PROJECT.md`. Never build ahead.
+- After each stage: explain what was built and how to test it, write `APITestCase`
+  tests, commit with a clear message (e.g. `feat: accounts app with JWT auth`),
+  then STOP and wait for user confirmation.
+
+## API conventions
+
+- Response bodies are flat JSON — no nested objects (Flutter parses them directly).
+- User-specific data (`logs`, `weight`, `progress`, `auth/me`) must filter by
+  `request.user` in the queryset — never trust user IDs from the payload.
+- `foods` endpoints are shared/global — never scoped per user.
+- Photos return absolute media URLs, never raw file data.
+
+## Environment
+
+- Local dev: venv at `./venv`, config via `.env` (never commit), Postgres on localhost.
+- Production: VPS at 72.61.91.102 (Ubuntu, Postgres 17, nginx). See `docs/DEPLOYMENT.md`.
